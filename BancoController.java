@@ -35,9 +35,13 @@ public class BancoController {
 
     private void cadastrarUsuario() {
         Usuario usuario = view.lerDadosUsuario();
-        banco.adicionarUsuario(usuario);
-        view.mostrarMensagem("Usuário cadastrado com sucesso!");
+        if (banco.adicionarUsuario(usuario)) {
+            view.mostrarMensagem("Usuário cadastrado com sucesso!");
+        } else {
+            view.mostrarMensagem("Erro: Já existe um usuário cadastrado com este CPF.");
+        }
     }
+
 
     private void fazerLogin() {
         System.out.print("CPF: ");
@@ -160,25 +164,25 @@ public class BancoController {
 
     private void transferir() {
         try {
-
             int numeroContaOrigem = view.lerNumeroConta("de origem para transferência");
             Conta contaOrigem = banco.buscarContaPorNumero(numeroContaOrigem);
 
             if (contaOrigem != null) {
-
                 int numeroContaDestino = view.lerNumeroConta("de destino para transferência");
                 Conta contaDestino = banco.buscarContaPorNumero(numeroContaDestino);
 
                 if (contaDestino != null) {
-
                     if (contaOrigem.getUsuario().equals(usuarioLogado)) {
-
                         double quantia = view.lerQuantia("transferência");
 
-                        if (contaOrigem.transferir(contaDestino, quantia)) {
-                            view.mostrarMensagem("Transferência realizada com sucesso!");
+                        if (quantia > 0) {
+                            if (contaOrigem.transferir(contaDestino, quantia)) {
+                                view.mostrarMensagem("Transferência realizada com sucesso!");
+                            } else {
+                                view.mostrarMensagem("Saldo insuficiente!");
+                            }
                         } else {
-                            view.mostrarMensagem("Saldo insuficiente!");
+                            view.mostrarMensagem("Valor de transferência inválido. Não é possível transferir valores negativos ou zero.");
                         }
                     } else {
                         view.mostrarMensagem("A conta de origem não pertence ao usuário logado.");
@@ -194,8 +198,14 @@ public class BancoController {
         }
     }
 
+
     private void criarConta() {
         try {
+            if (banco.existeContaComCpf(usuarioLogado.getCpf())) {
+                view.mostrarMensagem("Já existe uma conta cadastrada com este CPF.");
+                return;
+            }
+
             double saldoInicial = view.lerQuantia("saldo inicial");
             String tipo = view.lerTipoConta();
             Conta conta = new Conta(usuarioLogado, saldoInicial, tipo);
@@ -205,4 +215,5 @@ public class BancoController {
             view.mostrarMensagem("Erro ao criar conta: " + e.getMessage());
         }
     }
+
 }

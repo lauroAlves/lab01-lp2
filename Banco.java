@@ -4,12 +4,27 @@ public class Banco {
     private ArrayList<Usuario> usuarios = new ArrayList<>();
     private ArrayList<Conta> contas = new ArrayList<>();
 
-    public void adicionarUsuario(Usuario usuario) {
+    public boolean adicionarUsuario(Usuario usuario) {
+        for (Usuario u : usuarios) {
+            if (u.getCpf().equals(usuario.getCpf())) {
+                return false;
+            }
+        }
         usuarios.add(usuario);
+        return true;
     }
 
     public void adicionarConta(Conta conta) {
         contas.add(conta);
+    }
+
+    public boolean existeContaComCpf(String cpf) {
+        for (Conta conta : contas) {
+            if (conta.getUsuario().getCpf().equals(cpf)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Usuario autenticarUsuario(String cpf, String senha) {
@@ -41,7 +56,6 @@ public class Banco {
     }
 
     public boolean validarCpf(String cpf) {
-        // Lógica simples para validação do CPF (não sendo a validação completa, apenas exemplo)
         return cpf.matches("\\d{11}");
     }
 }
