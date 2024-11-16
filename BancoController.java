@@ -115,19 +115,24 @@ public class BancoController {
 
     private void depositar() {
         try {
-            int numeroConta = view.lerNumeroConta("para depósito");
-            Conta conta = banco.buscarContaPorNumero(numeroConta);
-            if (conta != null && conta.getUsuario().equals(usuarioLogado)) {
-                double quantia = view.lerQuantia("depósito");
-                conta.depositar(quantia);
-                view.mostrarMensagem("Depósito realizado com sucesso!");
+            int numeroConta = this.view.lerNumeroConta("para depósito");
+            Conta conta = this.banco.buscarContaPorNumero(numeroConta);
+            if (conta != null && conta.getUsuario().equals(this.usuarioLogado)) {
+                double quantia = this.view.lerQuantia("depósito");
+                if (quantia > 0) {
+                    conta.depositar(quantia);
+                    this.view.mostrarMensagem("Depósito realizado com sucesso!");
+                } else {
+                    this.view.mostrarMensagem("Valor de depósito inválido. Não é possível depositar valores negativos ou zero.");
+                }
             } else {
-                view.mostrarMensagem("Conta não encontrada ou não pertence ao usuário logado.");
+                this.view.mostrarMensagem("Conta não encontrada ou não pertence ao usuário logado.");
             }
-        } catch (Exception e) {
-            view.mostrarMensagem("Erro ao realizar depósito: " + e.getMessage());
+        } catch (Exception var5) {
+            this.view.mostrarMensagem("Erro ao realizar depósito: " + var5.getMessage());
         }
     }
+
 
     private void sacar() {
         try {
@@ -135,10 +140,14 @@ public class BancoController {
             Conta conta = banco.buscarContaPorNumero(numeroConta);
             if (conta != null && conta.getUsuario().equals(usuarioLogado)) {
                 double quantia = view.lerQuantia("saque");
-                if (conta.sacar(quantia)) {
-                    view.mostrarMensagem("Saque realizado com sucesso!");
+                if (quantia > 0) {
+                    if (conta.sacar(quantia)) {
+                        view.mostrarMensagem("Saque realizado com sucesso!");
+                    } else {
+                        view.mostrarMensagem("Saldo insuficiente!");
+                    }
                 } else {
-                    view.mostrarMensagem("Saldo insuficiente!");
+                    view.mostrarMensagem("Valor de saque inválido. Não é possível sacar valores negativos ou zero.");
                 }
             } else {
                 view.mostrarMensagem("Conta não encontrada ou não pertence ao usuário logado.");
@@ -147,6 +156,7 @@ public class BancoController {
             view.mostrarMensagem("Erro ao realizar saque: " + e.getMessage());
         }
     }
+
 
     private void transferir() {
         try {
